@@ -2,8 +2,10 @@ package ghar.learn.blueapp.domain.chat.data.chat
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import ghar.learn.blueapp.domain.chat.IMyBluetoothController
 import ghar.learn.blueapp.domain.chat.MyBluetoothDevice
@@ -31,6 +33,13 @@ class MyBluetoothController(private val context: Context
     override val pairedDevices: StateFlow<List<MyBluetoothDevice>>
         get() = _pairedDevices.asStateFlow()
 
+    private val foundBLDeviceFoundReceiver = BLDeviceFoundReceiver { device ->
+        _scannedDevices.update {devices->
+            val newDevice = device.toMyBluetoothDevice()
+            if(newDevice in devices) devices else devices + newDevice   // add only if new device is not already in the list
+
+        }
+    }
     init {
         updatePairDevices()
         bluetoothAdapter?.startDiscovery()
@@ -39,16 +48,26 @@ class MyBluetoothController(private val context: Context
         if(!hasPermission(Manifest.permission.BLUETOOTH_SCAN)){
             return
         }
+        // Register the BroadcastReceiver
+        context.registerReceiver(
+            foundBLDeviceFoundReceiver,
+            IntentFilter(BluetoothDevice.ACTION_FOUND)
+        )
+
         updatePairDevices()
         bluetoothAdapter?.startDiscovery()
     }
 
     override fun stopDiscover() {
-        TODO("Not yet implemented")
+        if(!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+            return
+        } else {
+            bluetoothAdapter?.cancelDiscovery()
+        }
     }
 
     override fun release() {
-        TODO("Not yet implemented")
+        context.unregisterReceiver(foundBLDeviceFoundReceiver)          // un-register the receiver
     }
 
     private fun updatePairDevices() {
