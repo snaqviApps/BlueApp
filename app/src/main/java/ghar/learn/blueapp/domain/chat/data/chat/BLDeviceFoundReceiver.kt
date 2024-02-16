@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Parcelable
 
-class BLDeviceFoundReceiver(
+class FoundDeviceReceiver(
     private val onDeviceFound : (BluetoothDevice) -> Unit
 ) : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {

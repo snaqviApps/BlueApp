@@ -2,8 +2,10 @@ package ghar.learn.blueapp.domain.chat.data.chat
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import ghar.learn.blueapp.domain.chat.IMyBluetoothController
 import ghar.learn.blueapp.domain.chat.MyBluetoothDevice
@@ -31,6 +33,13 @@ class MyBluetoothController(private val context: Context
     override val pairedDevices: StateFlow<List<MyBluetoothDevice>>
         get() = _pairedDevices.asStateFlow()
 
+    private val foundDeviceReceiver = FoundDeviceReceiver { device ->
+        _scannedDevices.update { devices->
+            val newDevices = device.toMyBluetoothDevice()
+            if(newDevices in devices) devices else devices + newDevices
+        }
+    }
+
     init {
         updatePairDevices()
         bluetoothAdapter?.startDiscovery()
@@ -39,16 +48,23 @@ class MyBluetoothController(private val context: Context
         if(!hasPermission(Manifest.permission.BLUETOOTH_SCAN)){
             return
         }
+        context.registerReceiver(                  // Intent-Action registration
+            foundDeviceReceiver,
+            IntentFilter(BluetoothDevice.ACTION_FOUND)  // Action
+        )
         updatePairDevices()
         bluetoothAdapter?.startDiscovery()
     }
 
     override fun stopDiscover() {
-        TODO("Not yet implemented")
+        if(!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+            return
+        }
+        bluetoothAdapter?.cancelDiscovery()
     }
 
     override fun release() {
-        TODO("Not yet implemented")
+        context.unregisterReceiver(foundDeviceReceiver)
     }
 
     private fun updatePairDevices() {
@@ -58,8 +74,8 @@ class MyBluetoothController(private val context: Context
         bluetoothAdapter
             ?.bondedDevices
             ?.map {it.toMyBluetoothDevice() }
-            ?.also { devides ->
-                _pairedDevices.update { devides }
+            ?.also { devices ->
+                _pairedDevices.update { devices }
             }
     }
 
