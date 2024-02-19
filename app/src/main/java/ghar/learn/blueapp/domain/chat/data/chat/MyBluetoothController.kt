@@ -33,27 +33,24 @@ class MyBluetoothController(private val context: Context
     override val pairedDevices: StateFlow<List<MyBluetoothDevice>>
         get() = _pairedDevices.asStateFlow()
 
-    private val foundBLDeviceFoundReceiver = BLDeviceFoundReceiver { device ->
-        _scannedDevices.update {devices->
-            val newDevice = device.toMyBluetoothDevice()
-            if(newDevice in devices) devices else devices + newDevice   // add only if new device is not already in the list
-
+    private val foundDeviceReceiver = FoundDeviceReceiver { device ->
+        _scannedDevices.update { devices->
+            val newDevices = device.toMyBluetoothDevice()
+            if(newDevices in devices) devices else devices + newDevices
         }
     }
+
     init {
         updatePairDevices()
-        bluetoothAdapter?.startDiscovery()
     }
     override fun startDiscover() {
         if(!hasPermission(Manifest.permission.BLUETOOTH_SCAN)){
             return
         }
-        // Register the BroadcastReceiver
-        context.registerReceiver(
-            foundBLDeviceFoundReceiver,
-            IntentFilter(BluetoothDevice.ACTION_FOUND)
+        context.registerReceiver(                       // Intent-Action registration
+            foundDeviceReceiver,
+            IntentFilter(BluetoothDevice.ACTION_FOUND)  // Action
         )
-
         updatePairDevices()
         bluetoothAdapter?.startDiscovery()
     }
@@ -61,24 +58,23 @@ class MyBluetoothController(private val context: Context
     override fun stopDiscover() {
         if(!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
             return
-        } else {
-            bluetoothAdapter?.cancelDiscovery()
         }
+        bluetoothAdapter?.cancelDiscovery()
     }
 
     override fun release() {
-        context.unregisterReceiver(foundBLDeviceFoundReceiver)          // un-register the receiver
+        context.unregisterReceiver(foundDeviceReceiver)
     }
 
     private fun updatePairDevices() {
-        if(!hasPermission(android.Manifest.permission.BLUETOOTH_CONNECT)) {
+        if(!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
             return
         }
         bluetoothAdapter
             ?.bondedDevices
             ?.map {it.toMyBluetoothDevice() }
-            ?.also { devides ->
-                _pairedDevices.update { devides }
+            ?.also { devices ->
+                _pairedDevices.update { devices }
             }
     }
 
