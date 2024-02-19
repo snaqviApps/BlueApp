@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -21,16 +20,21 @@ import ghar.learn.blueapp.domain.chat.presentation.MyBluetoothUIState
 
 @Composable
 fun DeviceScreen(
-    state: State<MyBluetoothUIState>,
+    state: MyBluetoothUIState,
     onStartScan: () -> Unit,
     onStopScan: () -> Unit
 ) {
-
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
     ) {
-
-//        BluetoothDeviceList(pairedDevices = , scannedDevices = , onClick = )
+        BluetoothDeviceList(
+            pairedDevices = state.pairedDevices,
+            scannedDevices = state.scannedDevices,
+            onClick = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
@@ -54,7 +58,7 @@ fun BluetoothDeviceList(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
     ) {
         item {
             Text(

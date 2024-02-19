@@ -1,7 +1,9 @@
 package ghar.learn.blueapp.domain.chat
 
 /**  typealias in original code as 'BluetoothDeviceDomain */
-data class MyBluetoothDevice(
+
+//typealias MyBluetoothDeviceDomain = MyBluetoothDevice     // not using
+data class MyBluetoothDevice (
     val name: String?,
     val macAddress: String          // physical device of Bluetooth-devices
 )

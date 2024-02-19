@@ -42,13 +42,12 @@ class MyBluetoothController(private val context: Context
 
     init {
         updatePairDevices()
-        bluetoothAdapter?.startDiscovery()
     }
     override fun startDiscover() {
         if(!hasPermission(Manifest.permission.BLUETOOTH_SCAN)){
             return
         }
-        context.registerReceiver(                  // Intent-Action registration
+        context.registerReceiver(                       // Intent-Action registration
             foundDeviceReceiver,
             IntentFilter(BluetoothDevice.ACTION_FOUND)  // Action
         )
@@ -68,7 +67,7 @@ class MyBluetoothController(private val context: Context
     }
 
     private fun updatePairDevices() {
-        if(!hasPermission(android.Manifest.permission.BLUETOOTH_CONNECT)) {
+        if(!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
             return
         }
         bluetoothAdapter

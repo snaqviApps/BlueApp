@@ -13,6 +13,5 @@ fun BluetoothDevice.toMyBluetoothDevice() : MyBluetoothDevice {
     return MyBluetoothDevice(
         name = name,
         macAddress = address
-
     )
 }

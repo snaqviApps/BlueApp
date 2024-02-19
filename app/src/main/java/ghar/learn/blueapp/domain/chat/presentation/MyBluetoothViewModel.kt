@@ -1,11 +1,9 @@
 package ghar.learn.blueapp.domain.chat.presentation
 
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ghar.learn.blueapp.domain.chat.IMyBluetoothController
-import ghar.learn.blueapp.domain.chat.data.chat.MyBluetoothController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -33,7 +31,6 @@ class MyBluetoothViewModel @Inject constructor(
         _state.value
     )
 
-    // scan start
     fun startScan() {
         iMyBluetoothController.startDiscover()
     }
